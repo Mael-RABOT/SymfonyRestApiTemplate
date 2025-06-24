@@ -1,0 +1,25 @@
+nelmio_cors:
+    defaults:
+        origin_regex: true
+        allow_origin:
+            - '^https?://(localhost|127\.0\.0\.1|<project>\.api\.<domain>\.com)(:\d+)?$'
+            - '^https://<project>\.api\.<domain>\.com$'
+            - '^https://<project>\.api\.<domain>\.com$'
+            - '^https?://89\.168\.62\.189(:\d+)?$'
+        allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
+        allow_headers: ['Content-Type', 'Authorization']
+        expose_headers: ['Link']
+        max_age: 3600
+    paths:
+        '^/api/':
+            origin_regex: true
+            allow_origin:
+                - '^https?://(localhost|127\.0\.0\.1|<project>\.api\.<domain>\.com)(:\d+)?$'
+                - '^https://<project>\.api\.<domain>\.com$'
+                - '^https://<project>\.api\.<domain>\.com$'
+                - '^https?://89\.168\.62\.189(:\d+)?$'
+            allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
+            allow_headers: ['Content-Type', 'Authorization']
+            expose_headers: ['Link']
+            max_age: 3600
+

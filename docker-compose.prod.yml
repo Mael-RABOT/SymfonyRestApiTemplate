@@ -1,0 +1,26 @@
+services:
+  # FrankenPHP container for Symfony
+  frankenphp:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile.frankenphp
+    container_name: symfony_frankenphp_prod
+    network_mode: host
+    ports:
+      - "127.0.0.1:8080:80"  # Only bind to localhost, Apache will proxy
+    environment:
+      - APP_ENV=${APP_ENV:-prod}
+      - DATABASE_URL=${DATABASE_URL}
+      - APP_SECRET=${APP_SECRET}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_PASSPHRASE=${JWT_PASSPHRASE}
+    volumes:
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./var/upload:/app/var/upload
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # Allow connection to host MariaDB
+
+networks:
+  symfony_network:
+    driver: bridge
