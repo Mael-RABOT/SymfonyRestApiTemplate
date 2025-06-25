@@ -18,16 +18,13 @@ This guide explains how to deploy the Symfony REST API template to production on
 git clone <your-repo-url> /var/www/symfony-api
 cd /var/www/symfony-api
 
-# Set proper ownership
+# Set proper ownership (if you know what you're doing, you can place the project in a different directory, permission should be handled by the dockerfiles)
 sudo chown -R $USER:$USER /var/www/symfony-api
 ```
 
 ## Step 2: Generate Production Secrets
 
 ```bash
-# Make the script executable
-chmod +x scripts/generate-production-secrets.sh
-
 # Run the secret generator
 ./scripts/generate-production-secrets.sh
 ```
@@ -35,7 +32,7 @@ chmod +x scripts/generate-production-secrets.sh
 This script will generate:
 - `APP_SECRET` for Symfony
 - `JWT_PASSPHRASE` for JWT authentication
-- `MYSQL_PASSWORD` and `MYSQL_ROOT_PASSWORD` for database
+- `MYSQL_PASSWORD` and `MYSQL_ROOT_PASSWORD` for database (if needed)
 - JWT private and public keys in `config/jwt/`
 
 ## Step 3: Configure Environment Variables
@@ -218,6 +215,11 @@ sudo apache2ctl configtest
 sudo systemctl reload apache2
 ```
 
+> If the systemctl reload command fails, their might be an issue with the Apache configuration. Use the apache test command to identify the issue:
+```bash
+sudo apache2ctl configtest
+```
+
 ## Step 7: Change Application Port (Optional)
 
 If you want to use a different port than 8080, you need to update both the Docker Compose file and Apache configuration:
@@ -246,6 +248,18 @@ ProxyPass / http://127.0.0.1:YOUR_CUSTOM_PORT/
 ProxyPassReverse / http://127.0.0.1:YOUR_CUSTOM_PORT/
 ```
 
+### Update the caddyfile
+
+```bash
+nvim docker/caddy/Caddyfile
+```
+Change the port mapping:
+```caddyfile
+<YOUR_CUSTOM_PORT>: {
+    ...
+}
+```
+
 ## Step 8: Deploy the Application
 
 ```bash
@@ -255,6 +269,8 @@ chmod +x scripts/deploy-production.sh
 # Run the deployment
 ./scripts/deploy-production.sh
 ```
+
+> If you want more control on the deployment, you can run the commands manually or use the Makefile (be sure to prefix the rule with `prod-`)
 
 This script will:
 - Build the FrankenPHP container
@@ -276,6 +292,13 @@ sudo certbot --apache -d yourproject.api.yourdomain.com
 
 # Test automatic renewal
 sudo certbot renew --dry-run
+```
+> Failure to obtain a certificate is often due to not setting up you domain name properly, ensure an A record point from you domain to you VPS ip
+> yourproject.api.@ -> your.vps.ip.address
+
+An easy way to retreive your public IP address is to use the `curl` command:
+```bash
+curl ifconfig.me
 ```
 
 ## Step 10: Database Setup
